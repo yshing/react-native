@@ -245,6 +245,18 @@ class WebView extends React.Component {
      */
     contentInset: EdgeInsetsPropType,
     /**
+     * This property specifies how the safe area insets are used to modify the
+     * content area of the scroll view. The default value of this property is
+     * "never". Available on iOS 11 and later.
+     * @platform ios
+     */
+    contentInsetAdjustmentBehavior: PropTypes.oneOf([
+      'automatic',
+      'scrollableAxes',
+      'never', // default
+      'always',
+    ]),
+    /**
      * Function that is invoked when the `WebView` loading starts or ends.
      */
     onNavigationStateChange: PropTypes.func,

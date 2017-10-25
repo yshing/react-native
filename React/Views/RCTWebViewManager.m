@@ -17,7 +17,17 @@
 @interface RCTWebViewManager () <RCTWebViewDelegate>
 
 @end
+@implementation RCTConvert (UIScrollView)
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000 /* __IPHONE_11_0 */
+RCT_ENUM_CONVERTER(UIScrollViewContentInsetAdjustmentBehavior, (@{
+                                                                  @"automatic": @(UIScrollViewContentInsetAdjustmentAutomatic),
+                                                                  @"scrollableAxes": @(UIScrollViewContentInsetAdjustmentScrollableAxes),
+                                                                  @"never": @(UIScrollViewContentInsetAdjustmentNever),
+                                                                  @"always": @(UIScrollViewContentInsetAdjustmentAlways),
+                                                                  }), UIScrollViewContentInsetAdjustmentNever, integerValue)
+#endif
 
+@end
 @implementation RCTWebViewManager
 {
   NSConditionLock *_shouldStartLoadLock;
@@ -50,7 +60,9 @@ RCT_EXPORT_VIEW_PROPERTY(onShouldStartLoadWithRequest, RCTDirectEventBlock)
 RCT_REMAP_VIEW_PROPERTY(allowsInlineMediaPlayback, _webView.allowsInlineMediaPlayback, BOOL)
 RCT_REMAP_VIEW_PROPERTY(mediaPlaybackRequiresUserAction, _webView.mediaPlaybackRequiresUserAction, BOOL)
 RCT_REMAP_VIEW_PROPERTY(dataDetectorTypes, _webView.dataDetectorTypes, UIDataDetectorTypes)
-
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000 /* __IPHONE_11_0 */
+RCT_EXPORT_VIEW_PROPERTY(contentInsetAdjustmentBehavior, UIScrollViewContentInsetAdjustmentBehavior)
+#endif
 RCT_EXPORT_METHOD(goBack:(nonnull NSNumber *)reactTag)
 {
   [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RCTWebView *> *viewRegistry) {
@@ -153,7 +165,7 @@ RCT_EXPORT_METHOD(startLoadWithResult:(BOOL)result lockIdentifier:(NSInteger)loc
     [_shouldStartLoadLock unlockWithCondition:0];
   } else {
     RCTLogWarn(@"startLoadWithResult invoked with invalid lockIdentifier: "
-               "got %lld, expected %lld", (long long)lockIdentifier, (long long)_shouldStartLoadLock.condition);
+               "got %zd, expected %zd", lockIdentifier, _shouldStartLoadLock.condition);
   }
 }
 
